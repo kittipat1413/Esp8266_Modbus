@@ -13,10 +13,13 @@ uint8_t *buf;
 void loop() {
   // put your main code here, to run repeatedly:
   Serial1.println("Send data");
-  int ret = Modbus.holdingRegisterRead(1,0x00,0x03,&buf);
-  if(ret>0){
+  int res_size = Modbus.holdingRegisterRead(1,0x00,0x03,&buf);
+  if(res_size > 0){
     Serial1.println("Data OK!!");
-    for(int i = 0; i < 13; i++){
+    Serial1.print("Response size : ");
+    Serial1.println(res_size);
+    Serial1.print("Response data : ");
+    for(int i = 0; i < res_size; i++){
             Serial1.print(buf[i],HEX);
             Serial1.print("||");            
         }
