@@ -1,6 +1,6 @@
 #include "ModbusRTU.h"
 
-ModbusRTU Modbus(Serial, 115200); 
+ModbusRTU Modbus(Serial, 9600); 
 
 void setup() {
   // put your setup code here, to run once:
@@ -12,7 +12,7 @@ void setup() {
 uint8_t *buf;
 void loop() {
   // put your main code here, to run repeatedly:
-  Serial1.println("Send data");
+  Serial1.println("Read data");
   int res_size = Modbus.holdingRegisterRead(1,0x00,0x03,&buf);
   if(res_size > 0){
     Serial1.println("Data OK!!");

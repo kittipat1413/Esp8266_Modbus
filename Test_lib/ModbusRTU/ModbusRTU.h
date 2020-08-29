@@ -1,3 +1,10 @@
+
+/*
+   ModbusRTU-ESP8266 library
+   Mr.Kittipat Poonyakariyakorn
+*/
+
+
 #ifndef __ModbusRTU_H__
 #define __ModbusRTU_H__
 
@@ -17,6 +24,7 @@ class ModbusRTU{
   uint8_t  payload_buff[MAX_RX_PACKET_SIZE];
   char DEBUG_buff[MAX_DEBUG_SIZE];
   boolean _debug = true;
+  int _timeout = 5000;
 
   template <typename Generic>
   void DEBUG_MB(Generic text);
@@ -36,7 +44,7 @@ class ModbusRTU{
 #else
   ModbusRTU(HardwareSerial &next, uint32_t baud);//Constructor
 #endif
-
+    void setDebugOutput(boolean debug);
     int holdingRegisterRead(uint8_t id, uint16_t address, uint16_t nb, uint8_t **buf);
     uint16_t crc16_update(uint16_t crc, uint8_t a);
     void serialFlush();

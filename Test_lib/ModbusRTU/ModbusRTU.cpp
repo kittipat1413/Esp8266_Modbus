@@ -46,71 +46,76 @@ int ModbusRTU::holdingRegisterRead(uint8_t id, uint16_t address, uint16_t nb, ui
   }
 
   //Waits for Data
-  delay(5000);
+  int count = _timeout/200;
+  while(count>0){
+        
+      count--;
 
-  //Read data
-  if(modbus->available() > 0){
-       int payload_size = modbus->readBytes(payload_buff, 50);
-       
-      DEBUG_MB(F("======================="));
-      sprintf(DEBUG_buff, "CRC from payload %X , %X ", payload_buff[payload_size-2],payload_buff[payload_size-1]);
-      DEBUG_MB(DEBUG_buff);
-      DEBUG_MB(F("======================="));
-      DEBUG_MB(F("payload_size : "));
-      DEBUG_MB(payload_size);
-      DEBUG_MB(F("======================="));
-      DEBUG_MB(F("payload : "));
-      for(i = 0; i < payload_size; i++){
-          sprintf(DEBUG_buff, "%02X / ", payload_buff[i]);
-          DEBUG_MB_HEX(DEBUG_buff);
-        }
-      DEBUG_MB_HEX("\n");
+      //Read data
+      if(modbus->available() > 0){
+           int payload_size = modbus->readBytes(payload_buff, 50);
+           
+          DEBUG_MB(F("======================="));
+          sprintf(DEBUG_buff, "CRC from payload %X , %X ", payload_buff[payload_size-2],payload_buff[payload_size-1]);
+          DEBUG_MB(DEBUG_buff);
+          DEBUG_MB(F("======================="));
+          DEBUG_MB(F("payload_size : "));
+          DEBUG_MB(payload_size);
+          DEBUG_MB(F("======================="));
+          DEBUG_MB(F("payload : "));
+          for(i = 0; i < payload_size; i++){
+              sprintf(DEBUG_buff, "%02X / ", payload_buff[i]);
+              DEBUG_MB_HEX(DEBUG_buff);
+            }
+          DEBUG_MB_HEX("\n");
 
-      uint16_t crc = 0xFFFF;
-      for(i = 0; i < payload_size-2; i++){
-          crc = crc16_update(crc, (uint8_t)payload_buff[i]);
+          uint16_t crc = 0xFFFF;
+          for(i = 0; i < payload_size-2; i++){
+              crc = crc16_update(crc, (uint8_t)payload_buff[i]);
+          }
+
+          DEBUG_MB(F("======================="));
+          sprintf(DEBUG_buff, "CRC %X", crc);
+          DEBUG_MB(DEBUG_buff);
+          
+          //Check CRC
+          if((uint8_t)crc == (uint8_t)payload_buff[payload_size-2] && (uint8_t)(crc >> 8) == (uint8_t)payload_buff[payload_size-1]){      
+ 
+              DEBUG_MB(F("CRC Check OK !!!!!"));
+              DEBUG_MB(F("======================="));
+              payload_buff[payload_size-1] = '\0';          
+              payload_buff[payload_size-2] = '\0';
+              
+              //Point buf to payload_buff
+              DEBUG_MB(F("buf payload : "));
+              *buf =  &payload_buff[3];
+              //*buf =  (uint8_t *)payload_buff+3;
+              for(i = 0; i < payload_size-5; i++){
+                sprintf(DEBUG_buff, "%02X / ", *(*(buf)+i));
+                DEBUG_MB_HEX(DEBUG_buff);
+              }
+              DEBUG_MB_HEX("\n");
+              DEBUG_MB(F("======================="));
+              return (payload_size-5);
+           }
+          else{
+              DEBUG_MB(F("CRC Check Error !!!!!"));
+              DEBUG_MB(F("======================="));
+              memset(payload_buff,0,50);
+              return -1;
+           }
+
       }
 
-      DEBUG_MB(F("======================="));
-      sprintf(DEBUG_buff, "CRC %X", crc);
-      DEBUG_MB(DEBUG_buff);
-      
-      if((uint8_t)crc == (uint8_t)payload_buff[payload_size-2] && (uint8_t)(crc >> 8) == (uint8_t)payload_buff[payload_size-1]){      
-          // Serial1.println("CRC Check OK !!!!!");
-          DEBUG_MB(F("CRC Check OK !!!!!"));
-          DEBUG_MB(F("======================="));
-          payload_buff[payload_size-1] = '\0';          
-          payload_buff[payload_size-2] = '\0';
-          
-          //Point buf to payload_buff
-          DEBUG_MB(F("buf payload : "));
-          *buf =  (uint8_t *)payload_buff;
-          for(i = 0; i < payload_size-2; i++){
-            sprintf(DEBUG_buff, "%02X / ", *(*(buf)+i));
-            DEBUG_MB_HEX(DEBUG_buff);
-            // Serial1.print(*(*(buf)+i),HEX);
-          }
-          DEBUG_MB_HEX("\n");
-          DEBUG_MB(F("======================="));
-          return (payload_size-2);
-       }
-      else{
-          DEBUG_MB(F("CRC Check Error !!!!!"));
-          DEBUG_MB(F("======================="));
-          memset(payload_buff,0,50);
-          return -1;
-       }
+      delay(200);
+  }    
 
-  }
-  else{
-      DEBUG_MB(F("UART TIME OUT !!!!!"));
-      DEBUG_MB(F("======================="));
-      memset(payload_buff,0,50);
-      return -1;
-  }
-  
 
-  
+  DEBUG_MB(F("UART TIME OUT !!!!!"));
+  DEBUG_MB(F("======================="));
+  memset(payload_buff,0,50);
+  return -1;
+        
 }
 
 
@@ -136,6 +141,9 @@ void ModbusRTU::serialFlush(){
   }
 }   
 
+void ModbusRTU::setDebugOutput(boolean debug) {
+  _debug = debug;
+}
 
 template <typename Generic>
 void ModbusRTU::DEBUG_MB(Generic text) {
