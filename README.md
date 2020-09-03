@@ -43,4 +43,5 @@ void loop() {
 * &buf = Response data will be stored in this buffer
 
 **`ModbusRTU Modbus(Serial, 9600)`** 
+
 This function will send ModbusRTU request data through The Serial port @ baud rate 9600 
