@@ -1,6 +1,6 @@
 # Esp8266_Modbus
 Dev ESP8266 Modbus RTU (rs485)
-* Supported Function code 03 (holdingRegisterRead) 
+* Supported Modbus Function code 03 holdingRegisterRead 
 
 # EX
 
@@ -36,8 +36,10 @@ void loop() {
 
 }
 ```
-**holdingRegisterRead(1,0x00,0x03,&buf)** 
+**`holdingRegisterRead(1,0x00,0x03,&buf)`** 
 * 1 = Sensor address
 * 0x00 = Starting register address that we want to read
 * 0x03 = Number of register that we want to read (In this case we read 3 register starting from 0x00)
 * &buf = Response data will be stored in this buffer
+**`ModbusRTU Modbus(Serial, 9600)`** 
+This function will send ModbusRTU request data through The Serial port @ baud rate 9600 
