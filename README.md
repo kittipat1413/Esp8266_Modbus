@@ -44,4 +44,4 @@ void loop() {
 
 **`ModbusRTU Modbus(Serial, 9600)`** 
 
-This function will send ModbusRTU request data through The Serial port @ baud rate 9600 
+This function will send ModbusRTU request data through the Serial port @ baud rate 9600 
