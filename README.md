@@ -36,3 +36,8 @@ void loop() {
 
 }
 ```
+**holdingRegisterRead(1,0x00,0x03,&buf)** 
+* 1 = Sensor address
+* 0x00 = Starting register address that we want to read
+* 0x03 = Number of register that we want to read (In this case we read 3 register starting from 0x00)
+* &buf = Response data will be stored in this buffer
